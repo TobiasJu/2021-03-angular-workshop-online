@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { fromEvent } from 'rxjs';
-import { concatMap, takeUntil } from 'rxjs/operators';
+import { tap, mergeMap, takeUntil, first } from 'rxjs/operators';
 
 @Component({
   selector: 'rxw-dragdrop',
@@ -11,6 +11,8 @@ export class DragdropComponent implements OnInit {
 
   targetPosition = [50, 50];
   @ViewChild('target', { static: true }) target;
+
+  mouseIsDown: boolean = false;
 
   ngOnInit() {
     const mouseMove$ = fromEvent<MouseEvent>(document, 'mousemove');
@@ -29,7 +31,30 @@ export class DragdropComponent implements OnInit {
 
     /******************************/
 
-    
+/*  try #1
+    mouseDown$.subscribe({
+      next: mousedown => this.mouseIsDown = true,
+      this.setTargetPosition(mouseDown)
+    })
+
+    mouseUp$.subscribe({
+      next: mousedown => this.mouseIsDown = false
+    })
+
+    mouseMove$.subscribe({
+      next: mousemove => this.mouseIsDown ? this.setTargetPosition(mousemove) : false
+    });
+*/
+
+    // try #2
+    const move$ = mouseDown$
+    .pipe(
+      tap((mouseDown) => this.setTargetPosition(mouseDown)),
+      mergeMap((mouseDown) => mouseMove$.pipe(takeUntil(mouseUp$))))
+    .subscribe({
+      next: (mouseMove) => this.setTargetPosition(mouseMove),
+    })
+
     /******************************/
   }
 

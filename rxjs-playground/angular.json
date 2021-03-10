@@ -156,5 +156,8 @@
       }
     }
   },
-  "defaultProject": "rxjs-workshop"
+  "defaultProject": "rxjs-workshop",
+  "cli": {
+    "analytics": false
+  }
 }
